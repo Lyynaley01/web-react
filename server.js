@@ -5,19 +5,19 @@ const axios = require("axios");
 const path = require("path");
 const admin = require("firebase-admin");
 
-// ── FIREBASE INIT (PAKSA PAKE ENV) ──
-if (!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-  console.error("❌ FIREBASE_SERVICE_ACCOUNT_JSON tidak ditemukan di environment!");
-  console.error("   Tambahkan di Railway → Variables");
-  process.exit(1);
-}
-
+// ── FIREBASE INIT ──
 let serviceAccount;
 try {
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-  console.log("✅ Firebase: Loaded from ENV");
-} catch (e) {
-  console.error("❌ Gagal parse FIREBASE_SERVICE_ACCOUNT_JSON:", e.message);
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    console.log("✅ Firebase: Loaded from ENV");
+  } else {
+    serviceAccount = require("./firebase-service-account.json");
+    console.log("✅ Firebase: Loaded from file");
+  }
+} catch (err) {
+  console.error("❌ Gagal load Firebase credentials:", err.message);
+  console.error("   Pastikan FIREBASE_SERVICE_ACCOUNT_JSON di environment variable atau file firebase-service-account.json ada.");
   process.exit(1);
 }
 
@@ -26,12 +26,10 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-// ─────────────────────────────────────────────────────────────────────
 
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(express.static(path.join(__dirname))); // <-- tambahin ini
 
 // ── CONFIG ──
 const REACT_API = "https://api.nexadev.my.id/api/rch";
@@ -39,7 +37,7 @@ const REACT_API_KEY = process.env.REACT_API_KEY || "enchos";
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "GANTI_INI_SEKARANG";
 const FREE_LIMIT = parseInt(process.env.FREE_DAILY_LIMIT || "3");
 const MAX_EMOJI = 5;
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // ── DEV AREA SECURITY ──
 const DEV_USER = process.env.DEV_USER || "elarion";
@@ -122,8 +120,7 @@ function requireDevAccess(req, res, next) {
   return res.status(401).send("Authentication required");
 }
 
-// ── ROUTES ──
-
+// ── FREE LIMIT ──
 async function getOrCreateFreeUsage(ip) {
   const today = todayStr();
   const docId = `${sanitizeIP(ip)}_${today}`;
@@ -158,6 +155,7 @@ async function rollbackFreeLimit(ip) {
   } catch (_) {}
 }
 
+// ── VIP HELPERS ──
 async function getVipUser(vipKey) {
   if (!vipKey || typeof vipKey !== "string") return null;
   const snap = await db.collection("vipUsers").doc(vipKey.trim()).get();
@@ -184,6 +182,7 @@ async function rollbackVipCredit(vipKey) {
   } catch (_) {}
 }
 
+// ── ROUTES ──
 app.get("/api/limit", async (req, res) => {
   const vipKey = req.headers["x-vip-key"] || req.query.vipKey;
   try {
@@ -333,6 +332,7 @@ app.post("/api/react", async (req, res) => {
   }
 });
 
+// ── ADMIN ROUTES ──
 function requireAdmin(req, res, next) {
   const secret = req.headers["x-admin-secret"] || req.body?.adminSecret;
   if (secret !== ADMIN_SECRET) {
@@ -431,14 +431,32 @@ app.get("/dev/*", requireDevAccess, (req, res) => {
   res.sendFile(path.join(__dirname, "public", req.path));
 });
 
-// ── FALLBACK ──
-app.get("*", (_req, res) => {
+// ── FALLBACK ROUTES (FIX UNTUK RAILWAY) ──
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ── START ──
-app.listen(PORT, () => {
-  console.log(`✅ Server running → http://localhost:${PORT}`);
+app.get("/index.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/:page", (req, res) => {
+  const page = req.params.page;
+  const filePath = path.join(__dirname, "public", page);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      res.sendFile(path.join(__dirname, "public", "index.html"));
+    }
+  });
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// ── START SERVER ──
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server running → http://0.0.0.0:${PORT}`);
   console.log(`   Firebase    : Connected`);
   console.log(`🔒 Dev area   : Protected (WAJIB LOGIN)`);
 });
