@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment - WA Reaction VIP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg:       #EDE8DC;
+      --surface:  #F5F2EA;
+      --black:    #111111;
+      --green:    #AAEF45;
+      --green-dk: #8DD430;
+      --muted:    #888880;
+      --border:   3px solid #111111;
+      --r:        10px;
+      --mono:     'Space Mono', monospace;
+      --sans:     'Space Grotesk', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--black);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 60px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .site-title {
+      font-family: var(--sans);
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--black);
+    }
+
+    .site-title em {
+      font-style: normal;
+      background: var(--green);
+      padding: 0 8px 2px;
+      border-radius: 4px;
+    }
+
+    .site-badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      border: 2px solid var(--black);
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin-left: 10px;
+      vertical-align: middle;
+      position: relative;
+      top: -4px;
+      background: var(--black);
+      color: var(--green);
+    }
+
+    .site-sub {
+      margin-top: 10px;
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--black);
+      text-decoration: none;
+      border: 2px solid var(--black);
+      border-radius: 6px;
+      padding: 8px 16px;
+      transition: translate 0.12s, box-shadow 0.12s;
+      box-shadow: 3px 3px 0 var(--black);
+    }
+
+    .back-link:hover {
+      translate: -2px -2px;
+      box-shadow: 5px 5px 0 var(--black);
+    }
+
+    .back-link i {
+      margin-right: 8px;
+    }
+
+    /* ── CONTAINER ── */
+    .container { width: 100%; max-width: 600px; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: var(--border);
+      border-radius: var(--r);
+      padding: 28px;
+      box-shadow: 5px 5px 0 var(--black);
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      color: var(--muted);
+    }
+
+    /* ── QR DISPLAY ── */
+    .qr-container {
+      background: #fff;
+      border: 2px solid var(--black);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 3px 3px 0 var(--black);
+      margin-bottom: 20px;
+    }
+
+    .qr-container img {
+      max-width: 280px;
+      width: 100%;
+      height: auto;
+      border: 2px solid var(--black);
+      border-radius: 6px;
+      box-shadow: 2px 2px 0 var(--black);
+    }
+
+    .qr-label {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: 12px;
+      color: var(--black);
+    }
+
+    .qr-sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── PAYMENT INFO ── */
+    .payment-info {
+      background: #FFF8D6;
+      border: 2px solid var(--black);
+      border-radius: 8px;
+      padding: 16px 18px;
+      box-shadow: 3px 3px 0 var(--black);
+      margin-bottom: 16px;
+    }
+
+    .payment-info .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 13px;
+      border-bottom: 1px dashed #D4CFBF;
+    }
+
+    .payment-info .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .payment-info .info-row .label {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .payment-info .info-row .value {
+      font-weight: 700;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--black);
+    }
+
+    .payment-info .info-row .value#info-amount {
+      font-size: 20px;
+      font-weight: 900;
+      font-family: var(--mono);
+      color: var(--black);
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.05);
+    }
+
+    .payment-info .info-row .value code {
+      font-family: var(--mono);
+      background: #E4DFCF;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--black);
+    }
+
+    /* ── VERIFICATION ── */
+    .verification-section {
+      background: #E4DFCF;
+      border: 2px solid var(--black);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 3px 3px 0 var(--black);
+      text-align: center;
+    }
+
+    .verification-section .v-title {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .verification-section .v-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .v-btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .v-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--black);
+      border: 2px solid var(--black);
+      border-radius: 6px;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      transition: translate 0.12s, box-shadow 0.12s;
+      box-shadow: 3px 3px 0 #555;
+    }
+
+    .v-btn:hover {
+      translate: -2px -2px;
+      box-shadow: 5px 5px 0 #555;
+    }
+
+    .v-btn:active {
+      translate: 2px 2px;
+      box-shadow: 1px 1px 0 #555;
+    }
+
+    .v-btn.whatsapp {
+      background: #25D366;
+      color: var(--black);
+      border-color: var(--black);
+    }
+
+    .v-btn.whatsapp:hover {
+      background: #1DA851;
+    }
+
+    .v-btn.telegram {
+      background: #0088CC;
+      color: #fff;
+      border-color: var(--black);
+    }
+
+    .v-btn.telegram:hover {
+      background: #0077B3;
+    }
+
+    .v-btn i {
+      font-size: 16px;
+    }
+
+    .v-note {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+
+    /* ── TOAST ── */
+    #toast-container {
+      position: fixed; top: 18px; right: 18px;
+      z-index: 99999; display: flex; flex-direction: column;
+      gap: 10px; pointer-events: none;
+    }
+
+    .toast {
+      display: flex; align-items: flex-start; gap: 12px;
+      min-width: 260px; max-width: 320px;
+      padding: 14px 16px; border-radius: var(--r);
+      border: 2px solid var(--black);
+      box-shadow: 4px 4px 0 var(--black);
+      font-family: var(--sans); font-size: 13px;
+      pointer-events: all; position: relative; overflow: hidden;
+      animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+
+    .toast.hiding { animation: toastOut 0.22s ease forwards; }
+    .toast.toast-ok   { background: var(--green); }
+    .toast.toast-fail { background: #FFD0CE; }
+
+    .toast-icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
+    .toast-body { flex: 1; }
+    .toast-title { font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+    .toast-msg   { font-size: 11.5px; color: #444; line-height: 1.5; white-space: pre-wrap; }
+
+    .toast-progress {
+      position: absolute; bottom: 0; left: 0; height: 3px;
+      background: var(--black); border-radius: 0 0 var(--r) var(--r);
+      animation: toastProgress 3.5s linear forwards;
+    }
+
+    @keyframes toastIn {
+      from { translate: 60px 0; opacity: 0; scale: 0.93; }
+      to   { translate: 0; opacity: 1; scale: 1; }
+    }
+
+    @keyframes toastOut {
+      from { translate: 0; opacity: 1; }
+      to   { translate: 60px; opacity: 0; }
+    }
+
+    @keyframes toastProgress {
+      from { width: 100%; }
+      to   { width: 0%; }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      margin-top: 28px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px; }
+      .qr-container img { max-width: 200px; }
+      .v-btn-group { flex-direction: column; }
+      .v-btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast-container"></div>
+  <div class="container">
+
+    <!-- HEADER -->
+    <header class="header">
+      <h1 class="site-title">WA <em>REACTION</em><span class="site-badge">PAY</span></h1>
+      <p class="site-sub">Pilih metode pembayaran & verifikasi</p>
+      <a href="pricing-dashboard.html" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke Pricing</a>
+    </header>
+
+    <!-- MAIN CARD -->
+    <div class="card">
+
+      <div class="card-title">
+        <i class="fas fa-credit-card"></i> Metode Pembayaran
+      </div>
+
+      <!-- QR DISPLAY -->
+      <div class="qr-container">
+        <img src="https://files.catbox.moe/lapyof.jpg" alt="QRIS" id="qr-image" />
+        <div class="qr-label">QRIS Allpayment</div>
+        <div class="qr-sub" id="qr-sub">Scan QR Code untuk melakukan pembayaran</div>
+      </div>
+
+      <!-- PAYMENT INFO -->
+      <div class="payment-info">
+        <div class="info-row">
+          <span class="label">Metode</span>
+          <span class="value" id="info-method">QRIS Allpayment</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Nama Penerima</span>
+          <span class="value" id="info-name">Lyy Store</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Total Bayar</span>
+          <span class="value" id="info-amount">Rp 4.000</span>
+        </div>
+      </div>
+
+      <!-- VERIFICATION SECTION -->
+      <div class="verification-section">
+        <div class="v-title"><i class="fas fa-shield-alt"></i> Verifikasi Manual</div>
+        <div class="v-desc">
+          Setelah melakukan pembayaran, kirim <strong>bukti transfer</strong> 
+          dan <strong>ID Order</strong> kamu ke admin untuk aktivasi.
+        </div>
+        <div class="v-btn-group">
+          <a href="#" target="_blank" class="v-btn whatsapp" id="wa-link">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </a>
+          <a href="https://t.me/Elarionc" target="_blank" class="v-btn telegram">
+            <i class="fab fa-telegram-plane"></i> Telegram
+          </a>
+        </div>
+        <div class="v-note">
+          ⏱️ Verifikasi 1-15 menit setelah bukti dikirim • 
+          📱 Sertakan ID Order: <strong id="order-id">#WA-2026-001</strong>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>WA Reaction Payment &mdash; By Elarion</footer>
+  </div>
+
+  <script>
+    /* ── TOAST ── */
+    var toastContainer = document.getElementById("toast-container");
+
+    function showToast(type, title, msg, duration) {
+      duration = duration || 3500;
+      var t = document.createElement("div");
+      t.className = "toast toast-" + type;
+      t.innerHTML =
+        '<div class="toast-icon">' + (type === "ok" ? "✅" : "❌") + "</div>" +
+        '<div class="toast-body"><div class="toast-title">' + title + "</div>" +
+        '<div class="toast-msg">' + msg + "</div></div>" +
+        '<div class="toast-progress"></div>';
+      toastContainer.appendChild(t);
+      setTimeout(function() {
+        t.classList.add("hiding");
+        setTimeout(function() { t.remove(); }, 250);
+      }, duration);
+    }
+
+    /* ── GENERATE ORDER ID ── */
+    function generateOrderId() {
+      var date = new Date();
+      var year = date.getFullYear();
+      var month = String(date.getMonth() + 1).padStart(2, '0');
+      var day = String(date.getDate()).padStart(2, '0');
+      var random = String(Math.floor(1000 + Math.random() * 9000));
+      return '#WA-' + year + month + day + '-' + random;
+    }
+
+    /* ── AMOUNT & PACKAGE FROM URL ── */
+    var urlParams = new URLSearchParams(window.location.search);
+    var amount = urlParams.get('amount');
+    var packageName = urlParams.get('package');
+
+    // Update total bayar
+    if (amount) {
+      document.getElementById('info-amount').textContent = 'Rp ' + parseInt(amount).toLocaleString('id-ID');
+    }
+
+    // Update deskripsi paket
+    if (packageName) {
+      var decodedPackage = decodeURIComponent(packageName);
+      document.getElementById('qr-sub').textContent = 'Paket: ' + decodedPackage;
+    }
+
+    // Generate Order ID
+    var orderIdEl = document.getElementById('order-id');
+    var orderId = generateOrderId();
+    orderIdEl.textContent = orderId;
+
+    /* ── WHATSAPP LINK WITH ORDER ID & PACKAGE ── */
+    var waLink = document.getElementById('wa-link');
+    var phoneNumber = '6281994086365';
+    var packageDisplay = packageName ? decodeURIComponent(packageName) : 'Tidak diketahui';
+    
+    var message = 'Halo Admin, saya ingin verifikasi pembayaran%0A' +
+                  'Order ID: ' + encodeURIComponent(orderId) + '%0A' +
+                  'Paket: ' + encodeURIComponent(packageDisplay) + '%0A' +
+                  'Nama: Lyy Store';
+    
+    waLink.href = 'https://wa.me/' + phoneNumber + '?text=' + message;
+  </script>
+</body>
+</html>
