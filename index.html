@@ -1,532 +1,378 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>React Dashboard - XAVREL</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
-        body { background: #0b0e14; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
-        .card { max-width: 480px; width: 100%; background: #141a24; border-radius: 32px; padding: 24px 20px 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.03); color: #eef2f6; }
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-        .header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #b388ff, #82b1ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.3px; }
-        .badge { background: #1f2a3a; padding: 6px 14px; border-radius: 40px; font-size: 13px; font-weight: 500; color: #b0c4de; border: 1px solid #2a3649; }
-        .badge.online { color: #6fcf97; border-color: #219653; background: #1a2e24; }
-        .badge.offline { color: #f28b82; border-color: #b71c1c; background: #2e1a1a; }
-        .badge.loading { color: #f9a825; border-color: #f57f17; background: #1e1f12; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .credit-box { background: #1f2a3a; border-radius: 20px; padding: 18px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #2a3649; }
-        .credit-label { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500; color: #b8cbe0; }
-        .credit-label span { font-size: 20px; }
-        .credit-value { font-size: 26px; font-weight: 700; color: #c6e2ff; letter-spacing: 0.5px; }
-        .credit-value small { font-size: 14px; font-weight: 400; color: #7a8fa8; margin-left: 4px; }
-        .input-group { background: #1a222e; border-radius: 18px; padding: 6px 6px 6px 18px; display: flex; align-items: center; gap: 8px; border: 1px solid #2a3649; margin-bottom: 12px; transition: border 0.2s; }
-        .input-group:focus-within { border-color: #5c7cfa; box-shadow: 0 0 0 3px rgba(92,124,250,0.15); }
-        .input-group input { flex: 1; background: transparent; border: none; padding: 14px 0; font-size: 15px; color: #eef2f6; outline: none; min-width: 0; }
-        .input-group input::placeholder { color: #5f748b; }
-        .input-group button { background: #2f3d55; border: none; color: #eef2f6; font-weight: 600; padding: 10px 18px; border-radius: 40px; font-size: 14px; cursor: pointer; transition: 0.2s; white-space: nowrap; border: 1px solid #3e506a; }
-        .input-group button:active { transform: scale(0.96); background: #3e506a; }
-        .input-group button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        .emoji-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 18px; justify-content: center; }
-        .emoji-btn { background: #1f2a3a; border: 1px solid #2a3649; border-radius: 40px; padding: 8px 14px; font-size: 20px; font-weight: 500; color: #d6e5f5; cursor: pointer; transition: 0.15s; display: flex; align-items: center; gap: 4px; }
-        .emoji-btn:active { transform: scale(0.92); background: #2d3c52; }
-        .emoji-btn.active { border-color: #5c7cfa; background: #1a2a4a; box-shadow: 0 0 12px rgba(92,124,250,0.2); }
-        .emoji-btn .label { font-size: 13px; font-weight: 400; color: #97adc7; }
-        .action-btn { width: 100%; background: linear-gradient(145deg, #2d4b7a, #1e3a66); border: none; border-radius: 60px; padding: 16px; font-size: 18px; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; margin: 4px 0 16px; letter-spacing: 0.3px; box-shadow: 0 6px 14px rgba(30,58,102,0.35); border: 1px solid #3c5f8f; }
-        .action-btn:active { transform: scale(0.97); }
-        .action-btn:disabled { opacity: 0.45; transform: scale(0.98); box-shadow: none; cursor: not-allowed; }
-        .status-box { background: #10171f; border-radius: 18px; padding: 14px 18px; margin-top: 12px; border-left: 4px solid #3e6a9f; font-size: 14px; color: #c0d2e5; word-break: break-word; line-height: 1.5; min-height: 58px; border: 1px solid #1f2d3d; border-left-width: 5px; transition: 0.2s; }
-        .status-box.loading { border-left-color: #f9a825; background: #1e1f12; }
-        .status-box.error { border-left-color: #e55a5a; background: #1e141a; color: #f2b5b5; }
-        .status-box.success { border-left-color: #4caf78; background: #12221d; color: #b8e6d0; }
-        .status-box .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #3e6a9f; border-top-color: #82b1ff; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .history { margin-top: 18px; border-top: 1px solid #1f2a3a; padding-top: 14px; }
-        .history-title { font-size: 13px; font-weight: 600; color: #7f96b2; letter-spacing: 0.5px; margin-bottom: 10px; }
-        .history-item { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #1a222e; font-size: 14px; color: #c8d9ee; }
-        .history-item .emoji { font-size: 16px; margin-right: 6px; }
-        .history-item .time { color: #5f748b; font-size: 12px; }
-        .history-empty { color: #4a5f78; font-style: italic; font-size: 14px; padding: 8px 0; }
-        .footer-note { text-align: center; margin-top: 18px; font-size: 12px; color: #3d5067; letter-spacing: 0.2px; }
-        .footer-note a { color: #5c7cfa; text-decoration: none; cursor: pointer; }
-        .footer-note .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
-        .footer-note .status-dot.online { background: #4caf78; }
-        .footer-note .status-dot.offline { background: #e55a5a; }
-        .footer-note .status-dot.loading { background: #f9a825; animation: pulse 1s infinite; }
-        .custom-emoji-input { display: flex; gap: 8px; align-items: center; margin: 6px 0 10px; }
-        .custom-emoji-input input { flex: 1; background: #1a222e; border: 1px solid #2a3649; border-radius: 40px; padding: 10px 16px; font-size: 16px; color: #eef2f6; outline: none; text-align: center; }
-        .custom-emoji-input input:focus { border-color: #5c7cfa; }
-        .custom-emoji-input button { background: #2f3d55; border: none; color: #eef2f6; font-weight: 600; padding: 10px 18px; border-radius: 40px; font-size: 14px; cursor: pointer; border: 1px solid #3e506a; transition: 0.2s; }
-        .custom-emoji-input button:active { transform: scale(0.96); }
-        .proxy-warning { background: #1a1a2e; border: 1px solid #f9a825; border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #f9a825; display: none; }
-        .proxy-warning.show { display: block; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>WA Channel Reactor</title>
+
+<style>
+*{
+ box-sizing:border-box;
+ font-family:Inter,Arial,sans-serif;
+}
+
+body{
+ margin:0;
+ min-height:100vh;
+ background:
+ radial-gradient(circle at top,#1d5c38,#050607 55%);
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ padding:20px;
+ color:white;
+}
+
+.container{
+ width:100%;
+ max-width:450px;
+}
+
+.logo{
+ text-align:center;
+ margin-bottom:20px;
+}
+
+.logo h1{
+ font-size:28px;
+ margin:10px 0;
+}
+
+.logo p{
+ color:#aaa;
+}
+
+.card{
+ background:#10151c;
+ border:1px solid #28313d;
+ border-radius:25px;
+ padding:25px;
+ box-shadow:0 20px 60px #0008;
+}
+
+
+label{
+ display:block;
+ margin-bottom:8px;
+ font-size:14px;
+ font-weight:bold;
+}
+
+
+input{
+ width:100%;
+ padding:15px;
+ border-radius:15px;
+ border:1px solid #333d4a;
+ background:#070a0f;
+ color:white;
+ outline:none;
+ margin-bottom:15px;
+}
+
+input:focus{
+ border-color:#25d366;
+}
+
+
+button{
+ width:100%;
+ padding:15px;
+ border:none;
+ border-radius:15px;
+ background:#25d366;
+ font-weight:bold;
+ cursor:pointer;
+ font-size:15px;
+}
+
+
+button:disabled{
+ opacity:.5;
+}
+
+
+.emojis{
+ display:flex;
+ gap:8px;
+ flex-wrap:wrap;
+ margin-bottom:15px;
+}
+
+.emojis button{
+ width:auto;
+ padding:8px 12px;
+ background:#1c2430;
+ color:white;
+}
+
+
+.result{
+ margin-top:20px;
+ padding:15px;
+ border-radius:15px;
+ display:none;
+ background:#080b10;
+ border:1px solid #333;
+}
+
+
+.success{
+ border-color:#25d366;
+}
+
+
+.error{
+ border-color:red;
+}
+
+
+.loading{
+ border-color:#ffc107;
+}
+
+
+small{
+ color:#888;
+}
+</style>
+
 </head>
+
+
 <body>
-    <div class="card" id="app">
-        <div class="header">
-            <h1>⚡ React CH</h1>
-            <div class="badge loading" id="apiStatus">⏳ Loading...</div>
-        </div>
 
-        <div class="credit-box">
-            <div class="credit-label"><span>💳</span> Credits</div>
-            <div class="credit-value" id="creditDisplay">0 <small>cr</small></div>
-        </div>
 
-        <div class="proxy-warning" id="proxyWarning">
-            ⚠️ Menggunakan CORS proxy. Beberapa API mungkin lambat.
-        </div>
+<div class="container">
 
-        <div class="input-group">
-            <input type="text" id="urlInput" placeholder="🔗 URL Channel WhatsApp">
-            <button id="reactBtn" disabled>React</button>
-        </div>
+<div class="logo">
 
-        <div class="emoji-grid" id="emojiGrid">
-            <button class="emoji-btn active" data-emoji="🔥">🔥 <span class="label">fire</span></button>
-            <button class="emoji-btn" data-emoji="❤️">❤️ <span class="label">love</span></button>
-            <button class="emoji-btn" data-emoji="😂">😂 <span class="label">joy</span></button>
-            <button class="emoji-btn" data-emoji="🎉">🎉 <span class="label">party</span></button>
-            <button class="emoji-btn" data-emoji="😍">😍 <span class="label">heart</span></button>
-            <button class="emoji-btn" data-emoji="👍">👍 <span class="label">yes</span></button>
-            <button class="emoji-btn" data-emoji="👏">👏 <span class="label">clap</span></button>
-            <button class="emoji-btn" data-emoji="💯">💯 <span class="label">100</span></button>
-        </div>
+<h1>⚡ WA Channel Reactor</h1>
 
-        <div class="custom-emoji-input">
-            <input type="text" id="customEmojiInput" placeholder="✏️ Emoji kustom (contoh: 🚀)" maxlength="2">
-            <button id="setCustomEmoji">Pakai</button>
-        </div>
+<p>
+Auto reaction WhatsApp Channel
+</p>
 
-        <button class="action-btn" id="sendReactBtn">🚀 Kirim Reaction</button>
+</div>
 
-        <div class="status-box" id="statusBox">⏳ Menghubungi API...</div>
 
-        <div class="history">
-            <div class="history-title">📋 Riwayat React</div>
-            <div id="historyList">
-                <div class="history-empty">Belum ada aktivitas</div>
-            </div>
-        </div>
+<div class="card">
 
-        <div class="footer-note">
-            <span class="status-dot loading" id="apiDot"></span>
-            <span id="apiStatusText">Menghubungi...</span>
-            · <a onclick="refreshCredits();">🔄 Refresh</a>
-            · <a onclick="toggleProxy();">🔀 Proxy</a>
-            · XAVREL
-        </div>
-    </div>
 
-    <script>
-        (function() {
-            "use strict";
+<label>
+Link Postingan Channel
+</label>
 
-            // ============================================================
-            //  KONFIGURASI
-            // ============================================================
-            const REACT_API = "https://api.nexadev.my.id/api/rch";
-            const REACT_API_KEY = "enchos";
 
-            // CORS PROXY — biar request tembus dari browser
-            const CORS_PROXIES = [
-                'https://corsproxy.io/?',
-                'https://api.allorigins.win/raw?url=',
-                'https://cors-anywhere.herokuapp.com/',
-            ];
-            let useProxy = true;
-            let currentProxyIndex = 0;
+<input id="url"
+placeholder="https://whatsapp.com/channel/xxxx/123">
 
-            // ============================================================
-            //  DOM REFS
-            // ============================================================
-            const creditDisplay = document.getElementById('creditDisplay');
-            const urlInput = document.getElementById('urlInput');
-            const reactBtn = document.getElementById('reactBtn');
-            const sendReactBtn = document.getElementById('sendReactBtn');
-            const statusBox = document.getElementById('statusBox');
-            const historyList = document.getElementById('historyList');
-            const apiStatus = document.getElementById('apiStatus');
-            const apiDot = document.getElementById('apiDot');
-            const apiStatusText = document.getElementById('apiStatusText');
-            const customEmojiInput = document.getElementById('customEmojiInput');
-            const setCustomEmojiBtn = document.getElementById('setCustomEmoji');
-            const proxyWarning = document.getElementById('proxyWarning');
 
-            // ============================================================
-            //  STATE
-            // ============================================================
-            let selectedEmoji = '🔥';
-            let credits = 0;
-            let history = [];
-            let isProcessing = false;
+<label>
+Emoji Reaction
+</label>
 
-            // ============================================================
-            //  TOGGLE PROXY
-            // ============================================================
-            window.toggleProxy = function() {
-                useProxy = !useProxy;
-                proxyWarning.classList.toggle('show', useProxy);
-                setStatus(`🔀 Proxy ${useProxy ? 'ON' : 'OFF'} — refresh untuk efek`, 'info');
-            };
 
-            // ============================================================
-            //  API CALL — DENGAN CORS PROXY
-            // ============================================================
-            async function callReactAPI(url, reaction) {
-                const params = new URLSearchParams({
-                    key: REACT_API_KEY,
-                    url: url,
-                    reaction: reaction
-                });
+<input id="emoji"
+placeholder="🔥,❤️,😂">
 
-                let apiUrl = `${REACT_API}?${params.toString()}`;
 
-                // Pakai proxy kalau diaktifkan
-                if (useProxy) {
-                    const proxy = CORS_PROXIES[currentProxyIndex % CORS_PROXIES.length];
-                    apiUrl = `${proxy}${encodeURIComponent(apiUrl)}`;
-                    console.log(`🔀 Using proxy: ${proxy}`);
-                }
+<div class="emojis">
 
-                console.log(`📡 Request: ${apiUrl}`);
+<button onclick="addEmoji('🔥')">🔥</button>
+<button onclick="addEmoji('❤️')">❤️</button>
+<button onclick="addEmoji('😂')">😂</button>
+<button onclick="addEmoji('👍')">👍</button>
+<button onclick="addEmoji('😍')">😍</button>
 
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                    },
-                    signal: AbortSignal.timeout(45000) // 45 detik
-                });
+</div>
 
-                if (!response.ok) {
-                    let errorMsg = `HTTP ${response.status}`;
-                    try {
-                        const text = await response.text();
-                        const json = JSON.parse(text);
-                        errorMsg = json.message || json.error || errorMsg;
-                    } catch (_) {
-                        const text = await response.text();
-                        if (text) errorMsg = text.slice(0, 200);
-                    }
-                    throw new Error(errorMsg);
-                }
 
-                const data = await response.json();
-                return data;
-            }
+<button id="send" onclick="react()">
+⚡ Kirim Reaction
+</button>
 
-            // ============================================================
-            //  AMBIL CREDIT DARI RESPONSE
-            // ============================================================
-            function extractCreditsFromResponse(data) {
-                if (data?.vip?.pointRemaining !== undefined) {
-                    return data.vip.pointRemaining;
-                }
-                return null;
-            }
 
-            // ============================================================
-            //  UPDATE UI
-            // ============================================================
-            function updateCreditDisplay() {
-                creditDisplay.innerHTML = `${credits} <small>cr</small>`;
-            }
+<div id="result" class="result"></div>
 
-            function setStatus(message, type = 'info') {
-                statusBox.textContent = '';
-                statusBox.className = 'status-box';
-                if (type === 'loading') {
-                    statusBox.classList.add('loading');
-                    statusBox.innerHTML = `<span class="spinner"></span> ${message}`;
-                } else if (type === 'error') {
-                    statusBox.classList.add('error');
-                    statusBox.textContent = `❌ ${message}`;
-                } else if (type === 'success') {
-                    statusBox.classList.add('success');
-                    statusBox.textContent = `✅ ${message}`;
-                } else {
-                    statusBox.textContent = message;
-                }
-            }
 
-            function renderHistory() {
-                if (history.length === 0) {
-                    historyList.innerHTML = '<div class="history-empty">Belum ada aktivitas</div>';
-                    return;
-                }
-                const recent = history.slice(-10).reverse();
-                historyList.innerHTML = recent.map(item => 
-                    `<div class="history-item">
-                        <span><span class="emoji">${item.emoji}</span> ${escapeHtml(item.target)}</span>
-                        <span class="time">${escapeHtml(item.time)}</span>
-                    </div>`
-                ).join('');
-            }
+</div>
 
-            function escapeHtml(str) {
-                if (!str) return '';
-                return String(str).replace(/[&<>"]/g, function(m) {
-                    if (m === '&') return '&amp;';
-                    if (m === '<') return '&lt;';
-                    if (m === '>') return '&gt;';
-                    if (m === '"') return '&quot;';
-                    return m;
-                });
-            }
 
-            function setApiStatus(online, message) {
-                if (online) {
-                    apiStatus.className = 'badge online';
-                    apiStatus.textContent = '🟢 Online';
-                    apiDot.className = 'status-dot online';
-                    apiStatusText.textContent = message || 'API Terhubung';
-                } else {
-                    apiStatus.className = 'badge offline';
-                    apiStatus.textContent = '🔴 Offline';
-                    apiDot.className = 'status-dot offline';
-                    apiStatusText.textContent = message || 'API Error';
-                }
-            }
+</div>
 
-            function setApiLoading() {
-                apiStatus.className = 'badge loading';
-                apiStatus.textContent = '⏳ Loading...';
-                apiDot.className = 'status-dot loading';
-                apiStatusText.textContent = 'Memproses...';
-            }
 
-            function setButtonsEnabled(enabled) {
-                reactBtn.disabled = !enabled;
-                sendReactBtn.disabled = !enabled;
-            }
 
-            // ============================================================
-            //  CORE REACT LOGIC
-            // ============================================================
-            async function performReact(emoji, url) {
-                if (isProcessing) {
-                    setStatus('⏳ Masih memproses, tunggu sebentar...', 'loading');
-                    return false;
-                }
+<script>
 
-                const trimmedUrl = url.trim();
-                if (!trimmedUrl) {
-                    setStatus('⚠️ Masukkan URL channel WhatsApp.', 'error');
-                    return false;
-                }
 
-                if (!trimmedUrl.includes('whatsapp.com') && !trimmedUrl.includes('chat.whatsapp.com')) {
-                    setStatus('⚠️ URL harus mengandung "whatsapp.com" atau "chat.whatsapp.com"', 'error');
-                    return false;
-                }
+const API =
+"https://api.nexadev.my.id/api/rch";
 
-                if (!emoji || emoji.trim() === '') {
-                    setStatus('⚠️ Pilih atau masukkan emoji terlebih dahulu.', 'error');
-                    return false;
-                }
 
-                isProcessing = true;
-                setButtonsEnabled(false);
-                setApiLoading();
-                setStatus(`🔄 Mengirim react ${emoji}...`, 'loading');
+const KEY =
+"enchos";
 
-                try {
-                    const result = await callReactAPI(trimmedUrl, emoji);
 
-                    const newCredits = extractCreditsFromResponse(result);
-                    if (newCredits !== null) {
-                        credits = newCredits;
-                        updateCreditDisplay();
-                    }
 
-                    const now = new Date();
-                    const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                    const shortTarget = trimmedUrl.length > 35 ? trimmedUrl.slice(0, 32) + '…' : trimmedUrl;
-                    history.push({
-                        emoji: emoji,
-                        target: shortTarget,
-                        time: timeStr + ' WIB'
-                    });
-                    renderHistory();
+function addEmoji(e){
 
-                    const statusMsg = result.message || result.status || 'Berhasil';
-                    setStatus(`${statusMsg} — ${emoji} dikirim`, 'success');
-                    setApiStatus(true, `${credits} credits`);
+let input=document.getElementById("emoji");
 
-                    return true;
+if(input.value.trim())
+ input.value += ","+e;
+else
+ input.value=e;
 
-                } catch (error) {
-                    console.error('❌ React error:', error);
+}
 
-                    let errorMsg = error.message || 'Gagal mengirim react';
-                    
-                    // Coba ganti proxy kalau error
-                    if (useProxy && (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError'))) {
-                        currentProxyIndex++;
-                        setStatus(`🔄 Coba proxy lain... (${currentProxyIndex + 1}/${CORS_PROXIES.length})`, 'loading');
-                        // Retry dengan proxy berikutnya
-                        try {
-                            const result = await callReactAPI(trimmedUrl, emoji);
-                            const newCredits = extractCreditsFromResponse(result);
-                            if (newCredits !== null) {
-                                credits = newCredits;
-                                updateCreditDisplay();
-                            }
-                            const now = new Date();
-                            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                            const shortTarget = trimmedUrl.length > 35 ? trimmedUrl.slice(0, 32) + '…' : trimmedUrl;
-                            history.push({ emoji: emoji, target: shortTarget, time: timeStr + ' WIB' });
-                            renderHistory();
-                            setStatus(`✅ Berhasil (proxy ${currentProxyIndex + 1})`, 'success');
-                            setApiStatus(true, `${credits} credits`);
-                            return true;
-                        } catch (retryError) {
-                            errorMsg = retryError.message || 'Gagal dengan semua proxy';
-                        }
-                    }
 
-                    if (errorMsg.includes('429')) {
-                        errorMsg = 'Terlalu banyak permintaan. Coba lagi nanti.';
-                    } else if (errorMsg.includes('timeout')) {
-                        errorMsg = 'API timeout. Coba lagi.';
-                    }
 
-                    setStatus(errorMsg, 'error');
-                    setApiStatus(false, errorMsg);
+function show(msg,type){
 
-                    return false;
+let box=document.getElementById("result");
 
-                } finally {
-                    isProcessing = false;
-                    setButtonsEnabled(true);
-                }
-            }
+box.style.display="block";
 
-            // ============================================================
-            //  REFRESH CREDIT
-            // ============================================================
-            async function refreshCredits() {
-                setStatus('🔄 Mengecek saldo credit...', 'loading');
-                setButtonsEnabled(false);
-                setApiLoading();
+box.className="result "+type;
 
-                try {
-                    const testUrl = 'https://whatsapp.com/channel/test';
-                    const result = await callReactAPI(testUrl, '👍');
-                    
-                    const newCredits = extractCreditsFromResponse(result);
-                    if (newCredits !== null) {
-                        credits = newCredits;
-                        updateCreditDisplay();
-                        setStatus(`✅ Credit: ${credits}`, 'success');
-                        setApiStatus(true, `${credits} credits`);
-                    } else {
-                        setStatus('⚠️ API tidak mengembalikan data credit', 'error');
-                        setApiStatus(false, 'No credit data');
-                    }
-                } catch (error) {
-                    console.error('❌ Refresh error:', error);
-                    setStatus(`❌ Gagal refresh: ${error.message}`, 'error');
-                    setApiStatus(false, error.message);
-                } finally {
-                    setButtonsEnabled(true);
-                }
-            }
+box.innerHTML=msg;
 
-            window.refreshCredits = refreshCredits;
+}
 
-            // ============================================================
-            //  EVENT LISTENERS
-            // ============================================================
 
-            document.querySelectorAll('.emoji-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    selectedEmoji = this.dataset.emoji;
-                    setStatus(`😀 Emoji: ${selectedEmoji}`, 'info');
-                    customEmojiInput.value = '';
-                });
-            });
 
-            setCustomEmojiBtn.addEventListener('click', function() {
-                const val = customEmojiInput.value.trim();
-                if (val && val.length <= 2) {
-                    selectedEmoji = val;
-                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
-                    setStatus(`😀 Emoji kustom: ${selectedEmoji}`, 'info');
-                } else {
-                    setStatus('⚠️ Masukkan 1-2 karakter emoji', 'error');
-                }
-            });
+async function react(){
 
-            customEmojiInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') setCustomEmojiBtn.click();
-            });
 
-            reactBtn.addEventListener('click', function() {
-                performReact(selectedEmoji, urlInput.value.trim());
-            });
+let btn=document.getElementById("send");
 
-            sendReactBtn.addEventListener('click', function() {
-                performReact(selectedEmoji, urlInput.value.trim());
-            });
+let url=document.getElementById("url").value.trim();
 
-            urlInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    reactBtn.click();
-                }
-            });
+let emoji=document.getElementById("emoji").value
+.split(",")
+.map(x=>x.trim())
+.filter(Boolean)
+.join(",");
 
-            document.querySelector('.credit-box').addEventListener('dblclick', refreshCredits);
 
-            // ============================================================
-            //  INIT
-            // ============================================================
-            async function init() {
-                setStatus('⏳ Menghubungi API XAVREL...', 'loading');
-                setButtonsEnabled(false);
-                setApiLoading();
-                proxyWarning.classList.toggle('show', useProxy);
 
-                try {
-                    const testUrl = 'https://whatsapp.com/channel/0029VaX';
-                    const result = await callReactAPI(testUrl, '👍');
-                    
-                    const newCredits = extractCreditsFromResponse(result);
-                    if (newCredits !== null) {
-                        credits = newCredits;
-                        updateCreditDisplay();
-                        setStatus(`✅ Terhubung! Credit: ${credits}`, 'success');
-                        setApiStatus(true, `${credits} credits`);
-                    } else {
-                        credits = 0;
-                        updateCreditDisplay();
-                        setStatus('⚠️ Terhubung tapi tidak ada data credit', 'error');
-                        setApiStatus(true, 'Connected');
-                    }
-                } catch (error) {
-                    console.error('❌ Init error:', error);
-                    setStatus(`⚠️ ${error.message}. Coba refresh atau toggle proxy.`, 'error');
-                    setApiStatus(false, error.message);
-                    credits = 0;
-                    updateCreditDisplay();
-                } finally {
-                    setButtonsEnabled(true);
-                    urlInput.placeholder = 'https://whatsapp.com/channel/...';
-                }
-            }
+if(!url){
 
-            init();
+show("❌ Link wajib diisi","error");
+return;
 
-            console.log('✅ XAVREL React Dashboard');
-            console.log(`📍 API: ${REACT_API}`);
-            console.log(`🔀 Proxy: ${useProxy ? 'ON' : 'OFF'}`);
+}
 
-        })();
-    </script>
+
+
+if(!emoji){
+
+show("❌ Emoji wajib diisi","error");
+return;
+
+}
+
+
+
+btn.disabled=true;
+
+btn.innerHTML="⏳ Mengirim...";
+
+show(
+"⏳ Memproses reaction...",
+"loading"
+);
+
+
+
+try{
+
+
+let apiURL =
+`${API}?key=${encodeURIComponent(KEY)}&url=${encodeURIComponent(url)}&reaction=${encodeURIComponent(emoji)}`;
+
+
+
+let res =
+await fetch(apiURL);
+
+
+
+let data =
+await res.json();
+
+
+
+console.log(data);
+
+
+
+if(
+data.status===false ||
+data.error
+){
+
+throw new Error(
+data.message ||
+data.error ||
+"API gagal"
+);
+
+}
+
+
+
+show(`
+
+<h3>✅ Berhasil</h3>
+
+<p>
+😀 Emoji :
+<b>${emoji}</b>
+</p>
+
+<p>
+🎯 Target :
+WhatsApp Channel
+</p>
+
+<p>
+🕒 ${new Date().toLocaleString("id-ID")}
+</p>
+
+`,
+"success");
+
+
+}catch(e){
+
+
+show(`
+
+<h3>❌ Gagal</h3>
+
+<p>${e.message}</p>
+
+`,
+"error");
+
+
+}
+
+
+
+btn.disabled=false;
+
+btn.innerHTML="⚡ Kirim Reaction";
+
+
+}
+
+
+</script>
+
+
 </body>
 </html>
